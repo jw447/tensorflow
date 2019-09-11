@@ -59,6 +59,9 @@ limitations under the License.
 
 //jwang
 #include <chrono>
+#include <iostream>
+#include "tensorflow/core/platform/logging.h"
+//#include "tensorflow/core/platform/test.h"
 
 namespace tensorflow {
 
@@ -146,7 +149,8 @@ struct LaunchConv2DOp<CPUDevice, T> {
     //jwang
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    std::cout << "The Conv2D Op execution time is: " << elapsed.count() << " s\n";
+    LOG(INFO) << "The Conv2D Op execution time is: " << elapsed.count() << " s\n";
+    // std::cout << "The Conv2D Op execution time is: " << elapsed.count() << " s\n";
   }
 
 };
