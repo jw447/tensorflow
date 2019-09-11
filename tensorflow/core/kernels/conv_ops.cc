@@ -57,6 +57,9 @@ limitations under the License.
 #include "tensorflow/core/platform/stream_executor.h"
 #endif  // GOOGLE_CUDA
 
+//jwang
+#include <chrono>
+
 namespace tensorflow {
 
 typedef Eigen::ThreadPoolDevice CPUDevice;
@@ -119,11 +122,14 @@ struct LaunchGeneric {
 
 template <typename T>
 struct LaunchConv2DOp<CPUDevice, T> {
+  
   void operator()(OpKernelContext* ctx, bool use_cudnn, bool cudnn_use_autotune,
                   const Tensor& input, const Tensor& filter, int row_dilation,
                   int col_dilation, int row_stride, int col_stride,
                   const Padding& padding, Tensor* output,
                   TensorFormat data_format) {
+    //jwang
+    auto start = std::chrono::high_resolution_clock::now();
     if (data_format != FORMAT_NHWC) {
       ctx->SetStatus(
           errors::Unimplemented("Generic conv implementation only supports "
@@ -137,7 +143,12 @@ struct LaunchConv2DOp<CPUDevice, T> {
     LaunchGeneric<CPUDevice, T>()(ctx, input, filter, row_stride, col_stride,
                                   row_dilation, col_dilation, padding, output,
                                   data_format);
+    //jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    std::cout << "The Conv2D Op execution time is: " << elapsed.count() << " s\n";
   }
+
 };
 
 template <typename Device, typename T>
