@@ -33,6 +33,10 @@ limitations under the License.
 #include "tensorflow/core/kernels/maxpooling_op_gpu.h"
 #endif  // GOOGLE_CUDA
 
+//jwang
+#include <chrono>
+#include "tensorflow/core/platform/logging.h"
+
 namespace tensorflow {
 
 typedef Eigen::GpuDevice GPUDevice;
@@ -107,6 +111,10 @@ class MaxPoolingOp : public OpKernel {
   }
 
   void Compute(OpKernelContext* context) override {
+    //jwang
+    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    auto start = std::chrono::high_resolution_clock::now();
+
     const Tensor& tensor_in = context->input(0);
     PoolParameters params{context,  ksize_,      stride_,
                           padding_, FORMAT_NHWC, tensor_in.shape()};
@@ -134,6 +142,10 @@ class MaxPoolingOp : public OpKernel {
     } else {
       SpatialMaxPool(context, output, tensor_in, params, padding_);
     }
+    //jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    LOG(INFO) << "The execution time of MaxPooling is: " << elapsed.count() << "s.";
   }
 
  private:

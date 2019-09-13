@@ -42,6 +42,10 @@ limitations under the License.
 #include "tensorflow/core/platform/stream_executor.h"
 #endif  // GOOGLE_CUDA
 
+// jwang
+#include <chrono>
+#include "tensorflow/core/platform/logging.h"
+
 namespace tensorflow {
 
 typedef Eigen::ThreadPoolDevice CPUDevice;
@@ -207,6 +211,8 @@ template <typename Scalar>
 struct LaunchBatchMatMul<CPUDevice, Scalar> {
   static void Launch(OpKernelContext* context, const Tensor& in_x,
                      const Tensor& in_y, bool adj_x, bool adj_y, Tensor* out) {
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
     typedef ParallelMatMulKernel<Scalar, Eigen::NumTraits<Scalar>::IsComplex>
         ParallelMatMulKernel;
     bool conjugate_result = false;
@@ -545,6 +551,11 @@ class BatchMatMul : public OpKernel {
   virtual ~BatchMatMul() {}
 
   void Compute(OpKernelContext* ctx) override {
+
+    // jwang
+    LOG(INFO) << __PRETTY_FUNCTION__;
+    auto start = std::chrono::high_resolution_clock::now();
+    
     const Tensor& in0 = ctx->input(0);
     const Tensor& in1 = ctx->input(1);
     OP_REQUIRES(ctx, in0.dims() == in1.dims(),
@@ -596,6 +607,10 @@ class BatchMatMul : public OpKernel {
     CHECK(out_reshaped.CopyFrom(*out, TensorShape({n, d0, d3})));
     LaunchBatchMatMul<Device, Scalar>::Launch(ctx, in0_reshaped, in1_reshaped,
                                               adj_x_, adj_y_, &out_reshaped);
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    LOG(INFO) << "The execution time of BatchMatMul is: " << elapsed.count() << "s.";
   }
 
  private:

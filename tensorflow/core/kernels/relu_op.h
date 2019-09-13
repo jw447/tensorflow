@@ -28,6 +28,10 @@ limitations under the License.
 #include "tensorflow/core/kernels/relu_op_functor.h"
 #include "tensorflow/core/lib/core/errors.h"
 
+// jwang
+#include <chrono>
+#include "tensorflow/core/platform/logging.h"
+
 namespace tensorflow {
 
 template <typename Device, typename T>
@@ -36,9 +40,20 @@ class ReluOp : public UnaryElementWiseOp<T, ReluOp<Device, T>> {
   using UnaryElementWiseOp<T, ReluOp<Device, T>>::UnaryElementWiseOp;
 
   void Operate(OpKernelContext* context, const Tensor& input, Tensor* output) {
+
+    // jwang
+    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    auto start = std::chrono::high_resolution_clock::now();
+
     functor::Relu<Device, T> functor;
     functor(context->eigen_device<Device>(), input.flat<T>(),
             output->flat<T>());
+
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    LOG(INFO) << "The execution time of Relu is: " << elapsed.count() << "s.";
+    
   }
 };
 

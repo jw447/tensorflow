@@ -25,6 +25,10 @@ limitations under the License.
 #include "tensorflow/core/framework/tensor_shape.h"
 #include "tensorflow/core/kernels/softmax_op_functor.h"
 
+// jwang
+#include <chrono>
+#include "tensorflow/core/platform/logging.h"
+
 namespace tensorflow {
 
 typedef Eigen::ThreadPoolDevice CPUDevice;
@@ -41,6 +45,8 @@ struct SoftmaxFunctorBase {
   void operator()(const Device& d, typename TTypes<T>::ConstMatrix logits,
                   typename TTypes<T>::Matrix softmax, const bool log) {
     SoftmaxEigenImpl<Device, T>::Compute(d, logits, softmax, log);
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
   }
 };
 template <typename T>
@@ -60,6 +66,11 @@ class SoftmaxOp : public OpKernel {
   }
 
   void Compute(OpKernelContext* context) override {
+
+    // jwang
+    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    auto start = std::chrono::high_resolution_clock::now();
+
     const Tensor& logits_in = context->input(0);
     OP_REQUIRES(context, TensorShapeUtils::IsVectorOrHigher(logits_in.shape()),
                 errors::InvalidArgument("logits must have >= 1 dimension, got ",
@@ -72,6 +83,10 @@ class SoftmaxOp : public OpKernel {
       functor(context->eigen_device<Device>(), logits_in.flat_inner_dims<T>(),
               softmax_out->flat_inner_dims<T>(), log_);
     }
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    LOG(INFO) << "The execution time of Softmax is: " << elapsed.count() << "s.";
   }
 
  private:

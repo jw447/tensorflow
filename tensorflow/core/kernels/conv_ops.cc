@@ -57,11 +57,9 @@ limitations under the License.
 #include "tensorflow/core/platform/stream_executor.h"
 #endif  // GOOGLE_CUDA
 
-//jwang
+// jwang
 #include <chrono>
-#include <iostream>
 #include "tensorflow/core/platform/logging.h"
-//#include "tensorflow/core/platform/test.h"
 
 namespace tensorflow {
 
@@ -75,6 +73,9 @@ struct LaunchGeneric {
                   const Tensor& filter, int row_stride, int col_stride,
                   int row_dilation, int col_dilation, const Padding& padding,
                   Tensor* output, TensorFormat data_format) {
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
+
     CHECK(data_format == FORMAT_NHWC) << "Generic conv implementation only "
                                          "supports NHWC tensor format for now.";
     if (filter.dim_size(0) == 1 && filter.dim_size(1) == 1 && row_stride == 1 &&
@@ -131,8 +132,9 @@ struct LaunchConv2DOp<CPUDevice, T> {
                   int col_dilation, int row_stride, int col_stride,
                   const Padding& padding, Tensor* output,
                   TensorFormat data_format) {
-    //jwang
-    auto start = std::chrono::high_resolution_clock::now();
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
+    
     if (data_format != FORMAT_NHWC) {
       ctx->SetStatus(
           errors::Unimplemented("Generic conv implementation only supports "
@@ -146,11 +148,6 @@ struct LaunchConv2DOp<CPUDevice, T> {
     LaunchGeneric<CPUDevice, T>()(ctx, input, filter, row_stride, col_stride,
                                   row_dilation, col_dilation, padding, output,
                                   data_format);
-    //jwang
-    auto finish = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = finish - start;
-    LOG(INFO) << "The Conv2D Op execution time is: " << elapsed.count() << " s\n";
-    // std::cout << "The Conv2D Op execution time is: " << elapsed.count() << " s\n";
   }
 
 };
@@ -236,6 +233,7 @@ class LaunchXsmmConvOp<CPUDevice, float> {
                   int out_cols, int out_depth, int dilation_rows,
                   int dilation_cols, int stride_rows, int stride_cols,
                   Tensor* output, TensorFormat data_format) {
+    
     auto num_threads =
         ctx->device()->tensorflow_cpu_worker_threads()->num_threads;
     // See libxsmm_dnn.h for this struct definition.
@@ -441,6 +439,11 @@ class Conv2DOp : public BinaryOp<T> {
   void Compute(OpKernelContext* context) override {
     // Input tensor is of the following dimensions:
     // [ batch, in_rows, in_cols, in_depth ]
+
+    // jwang
+    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    auto start = std::chrono::high_resolution_clock::now();
+
     const Tensor& input = context->input(0);
 
     // Input filter is of the following dimensions:
@@ -485,7 +488,6 @@ class Conv2DOp : public BinaryOp<T> {
             dimensions.out_rows, dimensions.out_cols, dimensions.out_depth,
             dimensions.dilation_rows, dimensions.dilation_cols,
             dimensions.stride_rows, dimensions.stride_cols, output,
-            params_.data_format)) {
       return;
     }
 #endif
@@ -498,6 +500,7 @@ class Conv2DOp : public BinaryOp<T> {
             dimensions.dilation_rows, dimensions.dilation_cols,
             dimensions.stride_rows, dimensions.stride_cols, output,
             params_.data_format)) {
+      LOG(INFO) << "Using LaunchDeepConvOp.";
       return;
     }
 
@@ -505,6 +508,11 @@ class Conv2DOp : public BinaryOp<T> {
               dimensions.dilation_rows, dimensions.dilation_cols,
               dimensions.stride_rows, dimensions.stride_cols, params_.padding,
               output, params_.data_format);
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    LOG(INFO) << "The execution time of Conv2D is: " << elapsed.count() << "s.";
+
   }
 
  private:

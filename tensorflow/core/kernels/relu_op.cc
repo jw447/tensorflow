@@ -25,6 +25,9 @@ limitations under the License.
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/lib/core/errors.h"
 
+//jwang
+#include "tensorflow/core/platform/logging.h"
+
 namespace tensorflow {
 
 typedef Eigen::ThreadPoolDevice CPUDevice;
@@ -195,6 +198,10 @@ class ReluOp<Device, qint8>
   using UnaryElementWiseOp<qint8, ReluOp<Device, qint8>>::UnaryElementWiseOp;
 
   void Operate(OpKernelContext* context, const Tensor& input, Tensor* output) {
+    
+    //jwang
+    LOG(INFO) << __PRETTY_FUNCTION__;
+    
     auto flat_input = input.flat<qint8>();
     OP_REQUIRES(context, (flat_input.size() % 4) == 0,
                 errors::InvalidArgument(

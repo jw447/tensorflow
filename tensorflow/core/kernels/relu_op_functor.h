@@ -20,6 +20,10 @@ limitations under the License.
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
 #include "tensorflow/core/framework/tensor_types.h"
 
+// jwang
+#include <chrono>
+#include "tensorflow/core/platform/logging.h"
+
 namespace tensorflow {
 namespace functor {
 
@@ -32,6 +36,9 @@ struct Relu {
   // activations: same shape as "features".
   void operator()(const Device& d, typename TTypes<T>::ConstTensor features,
                   typename TTypes<T>::Tensor activations) {
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__;
+
     activations.device(d) = features.cwiseMax(static_cast<T>(0));
   }
 };
