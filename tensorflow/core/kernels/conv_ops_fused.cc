@@ -37,6 +37,11 @@ limitations under the License.
 #include "tensorflow/core/kernels/ops_util.h"
 #include "tensorflow/core/util/tensor_format.h"
 
+//jwang
+#include <chrono>
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/default/logging.h"
+
 namespace tensorflow {
 namespace {
 
@@ -312,6 +317,11 @@ class FusedConv2DOp : public OpKernel {
   void Compute(OpKernelContext* context) override {
     // Input tensor is of the following dimensions:
     // [ batch, in_rows, in_cols, in_depth ]
+
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
+    auto start = std::chrono::high_resolution_clock::now();
+
     const Tensor& input = context->input(0);
 
     // Input filter is of the following dimensions:
@@ -395,6 +405,11 @@ class FusedConv2DOp : public OpKernel {
                context, input, filter, output);
         break;
     }
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    fprintf(stderr,"The execution time of _fused_Conv2D is %f s.\n", elapsed.count());
+
   }
 
  private:

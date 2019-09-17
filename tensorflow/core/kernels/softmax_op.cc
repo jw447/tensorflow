@@ -68,7 +68,7 @@ class SoftmaxOp : public OpKernel {
   void Compute(OpKernelContext* context) override {
 
     // jwang
-    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
     auto start = std::chrono::high_resolution_clock::now();
 
     const Tensor& logits_in = context->input(0);
@@ -86,7 +86,8 @@ class SoftmaxOp : public OpKernel {
     // jwang
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    LOG(INFO) << "The execution time of Softmax is: " << elapsed.count() << "s.";
+    fprintf(stderr,"The execution time of Conv2D is %f s.\n", elapsed.count());
+    // LOG(INFO) << "The execution time of Softmax is: " << elapsed.count() << "s.";
   }
 
  private:

@@ -46,6 +46,8 @@ from tensorflow.python.util.deprecation import deprecated_argument_lookup
 
 from tensorflow.python.util.tf_export import tf_export
 
+import time
+
 # Aliases for some automatically-generated names.
 local_response_normalization = gen_nn_ops.lrn
 
@@ -3014,7 +3016,11 @@ def dropout_v2(x, rate, noise_shape=None, seed=None, name=None):  # pylint: disa
     ValueError: If `keep_prob` is not in `(0, 1]` or if `x` is not a floating
       point tensor.
   """
+
   with ops.name_scope(name, "dropout", [x]) as name:
+    # jwang
+    start_time = time.time()
+  
     x = ops.convert_to_tensor(x, name="x")
     if not x.dtype.is_floating:
       raise ValueError("x has to be a floating point tensor since it's going to"
@@ -3051,8 +3057,10 @@ def dropout_v2(x, rate, noise_shape=None, seed=None, name=None):  # pylint: disa
     ret = math_ops.divide(x, keep_prob) * binary_tensor
     if not context.executing_eagerly():
       ret.set_shape(x.get_shape())
-    return ret
 
+    end_time = time.time()
+    print("The execution time of dropout is: {} s.".format(end_time - start_time))
+    return ret
 
 @tf_export("math.top_k", "nn.top_k")
 def top_k(input, k=1, sorted=True, name=None):  # pylint: disable=redefined-builtin

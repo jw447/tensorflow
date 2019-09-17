@@ -60,7 +60,7 @@ limitations under the License.
 // jwang
 #include <chrono>
 #include "tensorflow/core/platform/logging.h"
-
+#include "tensorflow/core/platform/default/logging.h"
 namespace tensorflow {
 
 typedef Eigen::ThreadPoolDevice CPUDevice;
@@ -441,7 +441,7 @@ class Conv2DOp : public BinaryOp<T> {
     // [ batch, in_rows, in_cols, in_depth ]
 
     // jwang
-    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
     auto start = std::chrono::high_resolution_clock::now();
 
     const Tensor& input = context->input(0);
@@ -500,7 +500,7 @@ class Conv2DOp : public BinaryOp<T> {
             dimensions.dilation_rows, dimensions.dilation_cols,
             dimensions.stride_rows, dimensions.stride_cols, output,
             params_.data_format)) {
-      LOG(INFO) << "Using LaunchDeepConvOp.";
+      // LOG(INFO) << "Using LaunchDeepConvOp.";
       return;
     }
 
@@ -511,7 +511,10 @@ class Conv2DOp : public BinaryOp<T> {
     // jwang
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    LOG(INFO) << "The execution time of Conv2D is: " << elapsed.count() << "s.";
+    //::tensorflow::internal::LogMessage::print_exetime();
+    fprintf(stderr,"The execution time of Conv2D is %f s.\n", elapsed.count());
+    //::tensorflow::internal::LogMessage::print_exetime() << "The execution time of Conv2D is: " << elapsed.count() << "s";
+    // LOG(INFO) << "The execution time of Conv2D is: " << elapsed.count() << "s.";
 
   }
 

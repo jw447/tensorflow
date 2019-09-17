@@ -21,7 +21,6 @@ limitations under the License.
 #include "tensorflow/core/framework/tensor_types.h"
 
 // jwang
-#include <chrono>
 #include "tensorflow/core/platform/logging.h"
 
 namespace tensorflow {

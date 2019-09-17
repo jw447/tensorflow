@@ -26,9 +26,6 @@ limitations under the License.
 #include "tensorflow/core/platform/stream_executor.h"
 #endif  // GOOGLE_CUDA
 
-//jwang
-#include "tensorflow/core/platform/logging.h"
-
 namespace tensorflow {
 
 PoolParameters::PoolParameters(OpKernelContext* context,

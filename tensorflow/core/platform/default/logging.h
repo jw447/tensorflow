@@ -59,6 +59,8 @@ class LogMessage : public std::basic_ostringstream<char> {
 
  protected:
   void GenerateLogMessage();
+  // jwang
+  void print_exetime(); 
 
  private:
   const char* fname_;

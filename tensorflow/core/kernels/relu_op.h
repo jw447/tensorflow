@@ -31,6 +31,7 @@ limitations under the License.
 // jwang
 #include <chrono>
 #include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/default/logging.h"
 
 namespace tensorflow {
 
@@ -42,7 +43,7 @@ class ReluOp : public UnaryElementWiseOp<T, ReluOp<Device, T>> {
   void Operate(OpKernelContext* context, const Tensor& input, Tensor* output) {
 
     // jwang
-    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
     auto start = std::chrono::high_resolution_clock::now();
 
     functor::Relu<Device, T> functor;
@@ -52,7 +53,8 @@ class ReluOp : public UnaryElementWiseOp<T, ReluOp<Device, T>> {
     // jwang
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    LOG(INFO) << "The execution time of Relu is: " << elapsed.count() << "s.";
+    fprintf(stderr,"The execution time of Relu is %f s.\n", elapsed.count());
+    // LOG(INFO) << "The execution time of Relu is: " << elapsed.count() << "s.";
     
   }
 };
@@ -90,7 +92,15 @@ class ReluGradOp : public BinaryElementWiseOp<T, ReluGradOp<Device, T>> {
   template <int NDIMS>
   void Operate(OpKernelContext* context, const Tensor& g, const Tensor& a,
                Tensor* output) {
+    // jwang
+    auto start = std::chrono::high_resolution_clock::now();
+
     OperateNoTemplate(context, g, a, output);
+
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    fprintf(stderr,"The execution time of ReluGrad is %f s.\n", elapsed.count());
   }
 };
 

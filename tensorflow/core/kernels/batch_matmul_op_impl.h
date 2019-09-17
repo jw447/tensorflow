@@ -553,7 +553,7 @@ class BatchMatMul : public OpKernel {
   void Compute(OpKernelContext* ctx) override {
 
     // jwang
-    LOG(INFO) << __PRETTY_FUNCTION__;
+    // LOG(INFO) << __PRETTY_FUNCTION__;
     auto start = std::chrono::high_resolution_clock::now();
     
     const Tensor& in0 = ctx->input(0);
@@ -610,7 +610,8 @@ class BatchMatMul : public OpKernel {
     // jwang
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    LOG(INFO) << "The execution time of BatchMatMul is: " << elapsed.count() << "s.";
+    fprintf(stderr,"The execution time of BatchMatMul is %f s.\n", elapsed.count());
+    // LOG(INFO) << "The execution time of BatchMatMul is: " << elapsed.count() << "s.";
   }
 
  private:

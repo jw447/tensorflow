@@ -25,8 +25,8 @@ limitations under the License.
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/lib/core/errors.h"
 
-//jwang
-#include "tensorflow/core/platform/logging.h"
+// jwang
+// #include "tensorflow/core/platform/logging.h"
 
 namespace tensorflow {
 
@@ -199,8 +199,8 @@ class ReluOp<Device, qint8>
 
   void Operate(OpKernelContext* context, const Tensor& input, Tensor* output) {
     
-    //jwang
-    LOG(INFO) << __PRETTY_FUNCTION__;
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__;
     
     auto flat_input = input.flat<qint8>();
     OP_REQUIRES(context, (flat_input.size() % 4) == 0,

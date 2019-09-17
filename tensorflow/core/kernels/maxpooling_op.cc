@@ -46,6 +46,11 @@ limitations under the License.
 #include "tensorflow/core/platform/stream_executor.h"
 #endif  // GOOGLE_CUDA
 
+// jwang
+#include <chrono>
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/default/logging.h"
+
 namespace tensorflow {
 
 typedef Eigen::ThreadPoolDevice CPUDevice;
@@ -363,6 +368,10 @@ class MaxPoolingGradOp<Eigen::GpuDevice, T> : public OpKernel {
   }
 
   void Compute(OpKernelContext* context) override {
+    
+    // jwang
+    auto start = std::chrono::high_resolution_clock::now();
+
     const Tensor& tensor_in = context->input(0);
     const Tensor& tensor_out = context->input(1);
     const Tensor& out_backprop = context->input(2);
@@ -414,6 +423,11 @@ class MaxPoolingGradOp<Eigen::GpuDevice, T> : public OpKernel {
       MaxPoolingBackwardCustomKernel<T>(context, ksize, stride, padding_,
                                         &tensor_in, out_backprop, output_shape);
     }
+
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    fprintf(stderr,"The execution time of MaxPoolGrad is %f s.\n", elapsed.count());
   }
 
  private:

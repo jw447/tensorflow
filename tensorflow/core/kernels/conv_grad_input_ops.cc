@@ -52,6 +52,11 @@ limitations under the License.
 #include "tensorflow/core/platform/stream_executor.h"
 #endif  // GOOGLE_CUDA
 
+// jwang
+#include <chrono>
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/default/logging.h"
+
 namespace {
 
 // Returns in 'im_data' (assumes to be zero-initialized) image patch in storage
@@ -223,6 +228,9 @@ class Conv2DFastBackpropInputOp : public OpKernel {
   }
 
   void Compute(OpKernelContext* context) override {
+    // jwang
+    auto start = std::chrono::high_resolution_clock::now();
+
     const Tensor& input_sizes = context->input(0);
     const Tensor& filter = context->input(1);
     const Tensor& out_backprop = context->input(2);
@@ -287,6 +295,12 @@ class Conv2DFastBackpropInputOp : public OpKernel {
         context, false, false, out_backprop, filter,
         /*row_dilation=*/1, /*col_dilation=*/1, dims.spatial_dims[0].stride,
         dims.spatial_dims[1].stride, padding_, in_backprop, data_format_);
+
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    fprintf(stderr,"The execution time of Conv2DBackpropFilter is %f s.\n", elapsed.count());
+
   }
 
  private:

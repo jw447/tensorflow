@@ -30,7 +30,7 @@ limitations under the License.
 #include "tensorflow/core/platform/stream_executor.h"
 #endif  // GOOGLE_CUDA
 
-//jwang
+// jwang
 #include <chrono>
 #include "tensorflow/core/platform/logging.h"
 
@@ -126,8 +126,8 @@ struct LaunchMatMulBase {
       const Eigen::array<Eigen::IndexPair<Eigen::DenseIndex>, 1>& dim_pair,
       std::vector<AlgorithmType>* algorithms, bool use_aututone, Tensor* out) {
 
-    //jwang
-    LOG(INFO) << __PRETTY_FUNCTION__;
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__;
 #ifndef TENSORFLOW_USE_SYCL
     // An explicit vector-matrix multiply is much better optimized than an
     // implicit one and this is a bottleneck during non-batched inference.
@@ -457,8 +457,10 @@ class MatMulOp : public OpKernel {
   }
 
   void Compute(OpKernelContext* ctx) override {
-    //jwang
-    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__ ;
+    auto start = std::chrono::high_resolution_clock::now();
+
     const Tensor& a = ctx->input(0);
     const Tensor& b = ctx->input(1);
 
@@ -527,7 +529,11 @@ class MatMulOp : public OpKernel {
       LaunchMatMul<Device, T, USE_CUBLAS>::launch(
           ctx, a, b, dim_pair, &algorithms_, use_autotune_, out);
     }
-    LOG(INFO) << __PRETTY_FUNCTION__ ;
+    // jwang
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    fprintf(stderr,"The execution time of MatMul is %f s.\n", elapsed.count()); 
+    // LOG(INFO) << "The execution time of MatMul is: " << elapsed.count() << "s.";
   }
 
  private:
@@ -549,8 +555,8 @@ struct MatMulFunctor<CPUDevice, T> {
       typename MatMulTypes<T>::in_type in1,
       const Eigen::array<Eigen::IndexPair<Eigen::DenseIndex>, 1>& dim_pair) {
 
-    //jwang
-    LOG(INFO) << __PRETTY_FUNCTION__;
+    // jwang
+    // LOG(INFO) << __PRETTY_FUNCTION__;
     MatMul<CPUDevice>(d, out, in0, in1, dim_pair);
   }
 };
